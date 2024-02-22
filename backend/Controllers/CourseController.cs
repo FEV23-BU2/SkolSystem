@@ -8,23 +8,42 @@ public class CreateCourseDto
     public string Description { get; set; } = "";
 }
 
+public class CourseDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+
+    public CourseDto(Course course)
+    {
+        this.Id = course.Id;
+        this.Name = course.Name;
+        this.Description = course.Description;
+    }
+}
+
 [ApiController]
 [Route("api/course")]
 public class CourseController : ControllerBase
 {
-    private static List<Course> courses = new List<Course>();
+    CourseService courseService;
+
+    public CourseController(CourseService courseService)
+    {
+        this.courseService = courseService;
+    }
 
     [HttpPost]
     public IActionResult CreateCourse([FromBody] CreateCourseDto dto)
     {
-        Course course = new Course(dto.Name, dto.Description);
-        courses.Add(course);
-        return Ok(course);
+        Course course = courseService.CreateCourse(dto.Name, dto.Description);
+
+        return Ok(new CourseDto(course));
     }
 
     [HttpGet]
-    public List<Course> GetAllCourses()
+    public List<CourseDto> GetAllCourses()
     {
-        return courses;
+        return courseService.GetAll().Select(course => new CourseDto(course)).ToList();
     }
 }

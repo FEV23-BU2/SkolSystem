@@ -2,7 +2,9 @@ namespace Backend;
 
 public class Group
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public List<string> Students { get; set; }
+    public List<Course> Courses { get; set; } = new List<Course>();
+
+    public List<Student> Students { get; set; } = new List<Student>();
 }

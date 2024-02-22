@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Backend;
 
 /*
@@ -33,6 +35,15 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
+        builder.Services.AddDbContext<ApplicationContext>(options =>
+        {
+            options.UseNpgsql(
+                "Host=localhost;Database=schoolSystem;Username=postgres;Password=password"
+            );
+        });
+
+        builder.Services.AddScoped<GroupService>();
+        builder.Services.AddScoped<CourseService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
