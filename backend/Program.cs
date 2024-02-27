@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend;
@@ -42,8 +45,27 @@ public class Program
             );
         });
 
+        builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(
+                "create_course",
+                policy =>
+                {
+                    policy.RequireAuthenticatedUser().RequireRole("teacher");
+                }
+            );
+        });
+
+        builder
+            .Services.AddIdentityCore<User>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationContext>()
+            .AddApiEndpoints();
+
         builder.Services.AddScoped<GroupService>();
         builder.Services.AddScoped<CourseService>();
+        builder.Services.AddTransient<IClaimsTransformation, UserClaimsTransformation>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -58,9 +80,45 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.MapIdentityApi<User>();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.UseHttpsRedirection();
         app.MapControllers();
 
         app.Run();
+    }
+}
+
+public class UserClaimsTransformation : IClaimsTransformation
+{
+    UserManager<User> userManager;
+
+    public UserClaimsTransformation(UserManager<User> userManager)
+    {
+        this.userManager = userManager;
+    }
+
+    public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+    {
+        ClaimsIdentity claims = new ClaimsIdentity();
+
+        var id = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (id != null)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                var userRoles = await userManager.GetRolesAsync(user);
+                foreach (var userRole in userRoles)
+                {
+                    claims.AddClaim(new Claim(ClaimTypes.Role, userRole));
+                }
+            }
+        }
+
+        principal.AddIdentity(claims);
+        return await Task.FromResult(principal);
     }
 }

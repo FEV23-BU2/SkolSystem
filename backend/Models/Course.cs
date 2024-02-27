@@ -8,6 +8,8 @@ public class Course
 
     public List<Group> Groups { get; set; }
 
+    public Course() { }
+
     public Course(string name, string description)
     {
         this.Name = name;

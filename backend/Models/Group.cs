@@ -6,5 +6,5 @@ public class Group
 
     public List<Course> Courses { get; set; } = new List<Course>();
 
-    public List<Student> Students { get; set; } = new List<Student>();
+    public List<User> Members { get; set; } = new List<User>();
 }

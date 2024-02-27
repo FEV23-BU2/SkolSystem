@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend;
@@ -34,6 +35,7 @@ public class CourseController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize("create_course")]
     public IActionResult CreateCourse([FromBody] CreateCourseDto dto)
     {
         Course course = courseService.CreateCourse(dto.Name, dto.Description);
