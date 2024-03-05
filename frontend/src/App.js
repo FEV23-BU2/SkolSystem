@@ -37,13 +37,22 @@ function LoggedInView({ setView }) {
         description: courseDescription,
       }),
     })
-      .then((res) => res.json())
-      .then((course) => {
-        setCourses([...courses, course]);
+      .then((res) => {
+        if (res.status === 409) {
+          alert("A course with that name already exists.");
+        } else if (res.status === 400) {
+          alert("You must enter a proper name and description.");
+        } else {
+          res.json().then((course) => {
+            setCourses([...courses, course]);
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(Object.keys(err));
+        console.log(err);
       });
   };
-
-  console.log(courses);
 
   return (
     <div className="App">

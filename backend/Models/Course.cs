@@ -17,3 +17,18 @@ public class Course
         this.Groups = new List<Group>();
     }
 }
+
+public class MyFileModel
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public byte[] Content { get; set; }
+    public string Extension { get; set; }
+
+    public MyFileModel(string name, byte[] content, string extension)
+    {
+        this.Name = name;
+        this.Content = content;
+        this.Extension = extension;
+    }
+}
